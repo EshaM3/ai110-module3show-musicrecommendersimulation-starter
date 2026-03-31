@@ -9,25 +9,36 @@ You will implement the functions in recommender.py:
 - recommend_songs
 """
 
-from recommender import load_songs, recommend_songs
+from src.recommender import load_songs, recommend_songs
 
 
 def main() -> None:
-    songs = load_songs("data/songs.csv") 
+    songs = load_songs("data/songs.csv")
+    print(f"Loaded songs: {len(songs)}")
 
     # Starter example profile
-    user_prefs = {"genre": "pop", "mood": "happy", "energy": 0.8}
+    user_prefs = {"favorite_genre": "rock", "favorite_mood": "intense", "target_energy": 0.7,
+                  "target_valence": 0.38, "target_tempo": 110, "target_dance": 0.20, 
+                  "target_acoustic": 0.4}
 
     recommendations = recommend_songs(user_prefs, songs, k=5)
 
-    print("\nTop recommendations:\n")
-    for rec in recommendations:
-        # You decide the structure of each returned item.
-        # A common pattern is: (song, score, explanation)
+    divider = "-" * 50
+    print(f"\n{'=' * 50}")
+    print(f"  Top {len(recommendations)} Recommendations")
+    print(f"{'=' * 50}")
+
+    for i, rec in enumerate(recommendations, start=1):
         song, score, explanation = rec
-        print(f"{song['title']} - Score: {score:.2f}")
-        print(f"Because: {explanation}")
-        print()
+        reasons = explanation.split("; ")
+
+        print(f"\n  #{i}  {song['title']} - {song['artist']}")
+        print(f"       Score: {score:.4f}")
+        print(f"  {divider}")
+        for reason in reasons:
+            print(f"    * {reason}")
+
+    print(f"\n{'=' * 50}\n")
 
 
 if __name__ == "__main__":

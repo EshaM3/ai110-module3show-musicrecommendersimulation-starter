@@ -17,17 +17,42 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+- In this system, each `Song` uses the following features: genre, mood, energy, and valence in decrasing priority. The smallest priority features that are used for fine tuning are tempo, danceability, and acousticness.
+- `UserProfile` stores favorite_genre, favorite_mood, target_energy, target_valence, target_tempo, target_dance, target_acoustic.
+- `Recommender` computes a score for each for each song with a weighted calculation:
+  **score(song)** =
+      w_genre * genre_score(song, user)
+    + w_mood * mood_score(song, user)
+    + w_energy * energy_score(song, user)
+    + w_valence * valence_score(song, user)
+    + w_tempo * tempo_score(song, user)
+    + w_dance * danceability_score(song, user)
+    + w_acoustic * acousticness_score(song, user)
 
-Some prompts to answer:
+  `w_genre = 0.30`
+  `w_mood = 0.25`
+  `w_energy = 0.20`
+  `w_valence = 0.10`
+  `w_tempo = 0.05`
+  `w_dance = 0.05`
+  `w_acoustic = 0.05`
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+  **genre_score and mood_score** = 1 for exact match, 0.5 for related genres, 0 otherwise
 
-You can include a simple diagram or bullet list if helpful.
+  **energy_score** = 1 - abs(song.energy - user.energy) 
+  ^(the same applies for **valence, danceability, and acousticness scores**)
+
+  **tempo_score** = 1 - abs(song.tempo_bpm - user.tempo_bpm) / (max_tempo - min_tempo) `max_tempo = 152`
+  `min_tempo = 60`
+  ^tempo needs to be normalized, so it has a separate calculation 
+- The songs are chosen to be recommended in accordance with a ranking rule system that will break ties by prioritizing novelty (most different from listener taste), remove duplicate/repeat songs, and return the top k number of songs (where k would be the requested number of recommended songs).
+
+Potential biases: giving a lot of weight to genre and mood. This could ignore cross-genre or cross-mood combo songs. It also leaves less room for variety.
+
+Here is an output example after loading a total of 17 songs...
+For rock/intense (this user profile: {"favorite_genre": "rock" "favorite_mood": "intense", "target_energy": 0.7, "target_valence": 0.38, "target_tempo": 110, "target_dance": 0.20, "target_acoustic": 0.4}):
+
+![3 of the Top 5 song recommendations in the terminal](image.png)
 
 ---
 
