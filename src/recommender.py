@@ -91,6 +91,15 @@ RELATED_GENRES = {
     "country": {"folk", "acoustic"},
     "jazz": {"blues", "soul"},
     "electronic": {"synthwave", "pop", "dance"},
+    # genres present in songs.csv but previously missing as keys
+    "metal": {"rock", "punk", "alternative"},
+    "synthwave": {"electronic", "pop", "ambient"},
+    "folk": {"country", "acoustic", "indie"},
+    "classical": {"ambient", "orchestral"},
+    "world": {"latin", "folk", "reggae"},
+    "indie pop": {"pop", "indie", "alternative"},
+    "latin": {"pop", "reggae", "world"},
+    "reggae": {"ska", "latin", "folk"},
 }
 
 RELATED_MOODS = {
@@ -103,12 +112,18 @@ RELATED_MOODS = {
     "serene": {"calm", "relaxed"},
     "angry": {"intense"},
     "thoughtful": {"moody", "focused"},
+    # moods present in songs.csv as values but previously missing as keys
+    "energetic": {"intense", "happy", "upbeat"},
+    "laid-back": {"chill", "relaxed", "calm"},
+    "calm": {"relaxed", "serene", "chill"},
+    "playful": {"happy", "upbeat", "energetic"},
+    "upbeat": {"happy", "energetic", "playful"},
 }
 
 WEIGHTS = {
-    "genre": 0.30,
+    "genre": 0.15,
     "mood": 0.25,
-    "energy": 0.20,
+    "energy": 0.40,
     "valence": 0.10,
     "tempo": 0.05,
     "dance": 0.05,
@@ -149,8 +164,8 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     user_mood = _get_first_value(user_prefs, "mood", "favorite_mood")
     user_energy = _to_float(_get_first_value(user_prefs, "energy", "target_energy"))
     user_valence = _to_float(_get_first_value(user_prefs, "valence", "target_valence"))
-    user_tempo = _to_float(_get_first_value(user_prefs, "tempo", "target_tempo"))
-    user_dance = _to_float(_get_first_value(user_prefs, "dance", "target_danceability"))
+    user_tempo = max(MIN_TEMPO, min(MAX_TEMPO, _to_float(_get_first_value(user_prefs, "tempo", "target_tempo"))))
+    user_dance = _to_float(_get_first_value(user_prefs, "dance", "target_dance", "target_danceability"))
     user_acoustic = _to_float(_get_first_value(user_prefs, "acoustic", "target_acoustic"))
 
     song_genre = _get_first_value(song, "genre")
@@ -216,8 +231,8 @@ def _novelty_distance(user_prefs: Dict, song: Dict) -> float:
     user_mood = _get_first_value(user_prefs, "mood", "favorite_mood")
     target_energy = _to_float(_get_first_value(user_prefs, "energy", "target_energy"))
     target_valence = _to_float(_get_first_value(user_prefs, "valence", "target_valence"))
-    target_tempo = _to_float(_get_first_value(user_prefs, "tempo", "target_tempo"))
-    target_dance = _to_float(_get_first_value(user_prefs, "dance", "target_danceability"))
+    target_tempo = max(MIN_TEMPO, min(MAX_TEMPO, _to_float(_get_first_value(user_prefs, "tempo", "target_tempo"))))
+    target_dance = _to_float(_get_first_value(user_prefs, "dance", "target_dance", "target_danceability"))
     target_acoustic = _to_float(_get_first_value(user_prefs, "acoustic", "target_acoustic"))
 
     genre_distance = 0.0 if song_genre == user_genre else 1.0
@@ -265,6 +280,6 @@ def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tup
         novelty = _novelty_distance(user_prefs, song)
         scored_songs.append((song, score, novelty, explanation))
 
-    scored_songs.sort(key=lambda item: (item[1], item[2]), reverse=True)
+    scored_songs.sort(key=lambda item: (-item[1], item[2]))
 
     return [(song, score, explanation) for song, score, _, explanation in scored_songs[:k]]

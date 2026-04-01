@@ -51,8 +51,32 @@ Potential biases: giving a lot of weight to genre and mood. This could ignore cr
 
 Here is an output example after loading a total of 17 songs...
 For rock/intense (this user profile: {"favorite_genre": "rock" "favorite_mood": "intense", "target_energy": 0.7, "target_valence": 0.38, "target_tempo": 110, "target_dance": 0.20, "target_acoustic": 0.4}):
+![3 of the Top 5 song recommendations in the terminal for rock/intense](images/rock_intense.png)
 
-![3 of the Top 5 song recommendations in the terminal](image.png)
+user_prefs = {
+    "favorite_genre": "pop",
+    "favorite_mood": "playful",   # ← "playful" is a VALUE in RELATED_MOODS but not a KEY
+    "target_energy": 0.8, "target_valence": 0.8,
+    "target_tempo": 120, "target_dance": 0.8, "target_acoustic": 0.2
+}
+![3 of the Top 5 song recommendations in terminal for pop/playful](images/pop_playful.png)
+
+user_prefs = {
+    "favorite_genre": "reggae",   # ← in songs.csv but NOT a key in RELATED_GENRES
+    "favorite_mood": "relaxed",
+    "target_energy": 0.6, "target_valence": 0.7,
+    "target_tempo": 96, "target_dance": 0.7, "target_acoustic": 0.5
+}
+![3 of the Top 5 song recommendations in terminal for reggae/relaxed](images/reggae_relaxed.png)
+
+user_prefs = {
+    "favorite_genre": "pop",
+    "favorite_mood": "happy",
+    "target_energy": 0.8, "target_valence": 0.8,
+    "target_tempo": 120, "target_dance": 0.9,   # ← the key used by main.py
+    "target_acoustic": 0.1
+}
+![3 of the Top 5 song recommendations in terminal for pop/happy](images/pop_happy.png)
 
 ---
 
@@ -228,9 +252,7 @@ Examples:
 
 ## 9. Personal Reflection
 
-A few sentences about what you learned:
+It was very interesting to see and write out how the scoring and ranking process works. It helps me see better how all that spotify data is processed to make things like their annual "Spotify Wrapped." I also now finally understand what exactly 'valence' and 'acousticness' both mean (I would see those terms in a Spotify-related app called Stats.fm and would always wonder what they meant).
 
-- What surprised you about how your system behaved
-- How did building this change how you think about real music recommenders
-- Where do you think human judgment still matters, even if the model seems "smart"
+Obviously, data and algorithms are not immune to error. They can sometimes have incorrect correlations, which was very clearly revealed to me with the weightage issues.
 
