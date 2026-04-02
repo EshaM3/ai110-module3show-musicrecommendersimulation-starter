@@ -280,6 +280,6 @@ def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tup
         novelty = _novelty_distance(user_prefs, song)
         scored_songs.append((song, score, novelty, explanation))
 
-    scored_songs.sort(key=lambda item: (-item[1], item[2]))
+    scored_songs.sort(key=lambda item: (item[1], item[2]), reverse=True)
 
     return [(song, score, explanation) for song, score, _, explanation in scored_songs[:k]]
